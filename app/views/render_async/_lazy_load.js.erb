@@ -1,21 +1,27 @@
+var lazyLoadObserver;
 var lazyLoaded = function(element) {
-    element.setAttribute("data-loaded", true)
+    element.setAttribute("data-loaded", true);
+    lazyLoadObserver.off('visibility');
 }
 
 var isLazyLoaded = function (element) {
-    return "true" === element.getAttribute("data-loaded")
+    return "true" === element.getAttribute("data-loaded");
 };
-var _lazyListener = function () {
-    var observer = new IntersectionObserver(function (entries, observer) {
-        entries.forEach(function (entry) {
-            if(0 < entry.intersectionRatio || entry.isIntersecting){
-                if(!isLazyLoaded(entry.target)){
-                    _listener();
-                    observer.unobserve(entry.target);
-                }
-            }
-        })
-    }, {rootMargin: '0px', threshold: 0});
 
-    observer.observe(document.getElementById("<%= container_id %>"))
+var lazyLoading = function (element) {
+    var loading = element.attr("data-loading");
+    element.attr("data-loading", true);
+
+    return !!loading;
+}
+var _lazyListener = function () {
+    var element = $('#<%= container_id %>');
+
+    lazyLoadObserver = element.on('visibility', function(e) {
+        if(e.visible){
+            if(!lazyLoading(element)){
+                _listener();
+            }
+        }
+    });
 }
